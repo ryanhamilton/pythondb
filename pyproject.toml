@@ -21,6 +21,7 @@ desert = "^2020.1.6"
 pytest = "^7.4.4"
 pytest-mock = "3.14.0"
 #mypy = "^0.761" - causes break on windows typed-ast error
+pyinstaller = {version = "^6.8.0", python="^3.8,<3.13"}
 
 [tool.poetry.scripts]
 qdb = "hypermodern_python.console:main"

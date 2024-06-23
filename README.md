@@ -6,3 +6,4 @@ poetry install --sync
 poetry lock
 poetry run qdb
 poetry run pytest
+poetry run pyinstaller --onefile  launcher.py
