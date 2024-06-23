@@ -2,6 +2,9 @@
 import textwrap
 
 import click
+import code
+import duckdb
+import polars
 
 from . import __version__, wikipedia
 
@@ -18,7 +21,7 @@ from . import __version__, wikipedia
 @click.version_option(version=__version__)
 def main(language: str) -> None:
     """The hypermodern Python project."""
-    page = wikipedia.random_page(language=language)
-
-    click.secho(page.title, fg="green")
-    click.echo(textwrap.fill(page.extract))
+    click.secho("HelloWOrld", fg="green")
+    #https://bernsteinbear.com/blog/simple-python-repl/
+    repl = code.InteractiveConsole()
+    repl.interact(banner="", exitmsg="")

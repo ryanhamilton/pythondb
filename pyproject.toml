@@ -16,6 +16,8 @@ click = "^7.0"
 requests = "^2.22.0"
 marshmallow = "^3.3.0"
 desert = "^2020.1.6"
+duckdb = "1.0.0"
+polars = "0.20.31"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.4.4"
