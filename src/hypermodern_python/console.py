@@ -3,9 +3,20 @@ import textwrap
 
 import click
 import code
-import duckdb
-import polars
+import asyncio
+from functools import partial
 
+import polars as pl
+import pandas as pd
+import os
+import pyarrow
+import xlsxwriter
+import tempfile
+import urllib.parse
+import duckdb
+import _thread as thread
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from polars.interchange.dataframe import PolarsDataFrame
 from . import __version__, wikipedia
 
 
@@ -25,3 +36,6 @@ def main(language: str) -> None:
     #https://bernsteinbear.com/blog/simple-python-repl/
     repl = code.InteractiveConsole()
     repl.interact(banner="", exitmsg="")
+
+    
+    
