@@ -6,7 +6,7 @@ import code
 import asyncio
 from functools import partial
 
-from mysql_mimic import MysqlServer, Session, AllowedResult
+from mysql_mimic import MysqlServer
 import polars as pl
 import pandas as pd
 import os
@@ -18,6 +18,8 @@ import duckdb
 import _thread as thread
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from polars.interchange.dataframe import PolarsDataFrame
+
+from .mysession import Session
 from . import __version__, wikipedia
 
 
@@ -38,7 +40,8 @@ def main(language: str) -> None:
     print("Launching......")
     queryProcessor = QueryProcessor()
     thread.start_new_thread(start_web, (queryProcessor,))
-    #start_sql(queryProcessor)
+    start_sql(queryProcessor)
+    #thread.start_new_thread(start_sql, (queryProcessor,))
     repl = code.InteractiveConsole()
     repl.interact(banner="", exitmsg="")
 
@@ -68,6 +71,7 @@ class QueryProcessor:
 
 class MySession(Session):
     def __init__(self, queryProcessor: QueryProcessor):
+        super().__init__()
         self.queryProcessor = queryProcessor
 
     async def query(self, expression, sql, attrs):
@@ -162,6 +166,7 @@ def start_web(queryProcessor: QueryProcessor):
 
 def start_sql(queryProcessor: QueryProcessor):
     print("Starting MySQL Server")
-    server = MysqlServer(session_factory=MySession(queryProcessor))
+    handler = partial(MySession, queryProcessor)
+    server = MysqlServer(session_factory=handler)
     asyncio.run(server.serve_forever())
 
