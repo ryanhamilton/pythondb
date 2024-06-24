@@ -1,4 +1,5 @@
 """Command-line interface."""
+import ast
 import textwrap
 
 import click
@@ -48,9 +49,10 @@ def main(language: str) -> None:
     repl = code.InteractiveConsole()
     repl.interact(banner="", exitmsg="")
 
+
 if __name__ == "__main__":
-     main()
-    
+    main()
+
 
 class QueryProcessor:
     def query(self, sql) -> PolarsDataFrame:
@@ -58,18 +60,17 @@ class QueryProcessor:
         data = {"a": [1, 2], "b": [33, 41]}
         plx = pl.DataFrame(data)
         pdx = pd.DataFrame(data)
-        d = {"plx": plx, "pdx": pdx }
+        d = {"plx": plx, "pdx": pdx}
 
         if sql.startswith("s)"):
             s = sql[2:]
             r = duckdb.sql(s).pl()
         else:
-            r = eval(sql, {}, d)
+            r = exec_with_return(sql, d, globals())
 
         if isinstance(r, pd.DataFrame):
             r = pl.from_pandas(r)
         return r
-
 
 
 class MySession(Session):
@@ -116,25 +117,24 @@ class Serv(BaseHTTPRequestHandler):
             return self.extensions[extension]
         return self.extensions["plain"]
 
-    def query(self, qr:str) -> PolarsDataFrame:
+    def query(self, qr: str) -> PolarsDataFrame:
         qry = urllib.parse.unquote(qr)
         return self.queryProcessor.query(qry)
-
 
     def do_GET(self):
         p = 'html' + self.path
         print(p)
         if self.path == '/':
-           p = 'html/index.html'
+            p = 'html/index.html'
 
-        if(self.path.startswith("/?]")):
+        if (self.path.startswith("/?]")):
             r = self.query(self.path[3:])
             self.wfile.write(bytes(r._repr_html_(), 'utf-8'))
-        elif(self.path.startswith("/file.csv?") or self.path.startswith("/t.csv?")
-                or self.path.startswith("/file.xls?") or self.path.startswith("/t.xls?")):
+        elif (self.path.startswith("/file.csv?") or self.path.startswith("/t.csv?")
+              or self.path.startswith("/file.xls?") or self.path.startswith("/t.xls?")):
             p = self.path.index("?")
-            typ = self.path[p-3:p]
-            r = self.query(self.path[p+1:])
+            typ = self.path[p - 3:p]
+            r = self.query(self.path[p + 1:])
             self.send_response(200)
             self.send_header("Content-type", self.extensions[typ])
             self.send_header("Content-Disposition", "attachment")
@@ -161,15 +161,30 @@ class Serv(BaseHTTPRequestHandler):
             self.wfile.write(b'Hello, World!')
 
 
-def start_web(queryProcessor: QueryProcessor, port:int):
+def start_web(queryProcessor: QueryProcessor, port: int):
     print("Starting Webserver port: ", port)
     handler = partial(Serv, queryProcessor)
-    httpd = HTTPServer(('localhost',port), handler)
+    httpd = HTTPServer(('localhost', port), handler)
     httpd.serve_forever()
 
-def start_sql(queryProcessor: QueryProcessor, port:int):
+
+def start_sql(queryProcessor: QueryProcessor, port: int):
     print("Starting MySQL Server port: ", port)
     handler = partial(MySession, queryProcessor)
     server = MysqlServer(session_factory=handler, port=port)
     asyncio.run(server.serve_forever())
 
+
+def exec_with_return(code: str, globals: dict, locals: dict):
+    a = ast.parse(code)
+    last_expression = None
+    if a.body:
+        if isinstance(a_last := a.body[-1], ast.Expr):
+            last_expression = ast.unparse(a.body.pop())
+        elif isinstance(a_last, ast.Assign):
+            last_expression = ast.unparse(a_last.targets[0])
+        elif isinstance(a_last, (ast.AnnAssign, ast.AugAssign)):
+            last_expression = ast.unparse(a_last.target)
+    exec(ast.unparse(a), globals, locals)
+    if last_expression:
+        return eval(last_expression, globals, locals)
