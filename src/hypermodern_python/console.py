@@ -10,8 +10,12 @@ from mysql_mimic import MysqlServer
 import polars as pl
 import pandas as pd
 import os
+
+# TO allow pyinstaller to find imports
 import pyarrow
 import xlsxwriter
+import numpy as np
+
 import tempfile
 import urllib.parse
 import duckdb
@@ -39,9 +43,8 @@ def main(language: str) -> None:
     #https://bernsteinbear.com/blog/simple-python-repl/
     print("Launching......")
     queryProcessor = QueryProcessor()
-    thread.start_new_thread(start_web, (queryProcessor,))
-    start_sql(queryProcessor)
-    #thread.start_new_thread(start_sql, (queryProcessor,))
+    thread.start_new_thread(start_web, (queryProcessor, 8080))
+    thread.start_new_thread(start_sql, (queryProcessor, 3306))
     repl = code.InteractiveConsole()
     repl.interact(banner="", exitmsg="")
 
@@ -158,15 +161,15 @@ class Serv(BaseHTTPRequestHandler):
             self.wfile.write(b'Hello, World!')
 
 
-def start_web(queryProcessor: QueryProcessor):
-    print("Starting Webserver")
+def start_web(queryProcessor: QueryProcessor, port:int):
+    print("Starting Webserver port: ", port)
     handler = partial(Serv, queryProcessor)
-    httpd = HTTPServer(('localhost',8080), handler)
+    httpd = HTTPServer(('localhost',port), handler)
     httpd.serve_forever()
 
-def start_sql(queryProcessor: QueryProcessor):
-    print("Starting MySQL Server")
+def start_sql(queryProcessor: QueryProcessor, port:int):
+    print("Starting MySQL Server port: ", port)
     handler = partial(MySession, queryProcessor)
-    server = MysqlServer(session_factory=handler)
+    server = MysqlServer(session_factory=handler, port=port)
     asyncio.run(server.serve_forever())
 
