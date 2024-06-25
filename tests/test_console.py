@@ -107,3 +107,19 @@ def test_set(runner: QueryProcessor) -> None:
 ╞════════╡
 │ cherry │
 └────────┘"""
+
+
+def test_pandas(runner: QueryProcessor) -> None:
+    qry = """import pandas as pd
+data = [['tom', 10], ['nick', 11], ['juli', 14]]
+df = pd.DataFrame(data, columns=['Name', 'Age'])"""
+    assert runner.query(qry).__str__() == """shape: (3, 2)
+┌──────┬─────┐
+│ Name ┆ Age │
+│ ---  ┆ --- │
+│ str  ┆ i64 │
+╞══════╪═════╡
+│ tom  ┆ 10  │
+│ nick ┆ 11  │
+│ juli ┆ 14  │
+└──────┴─────┘"""
