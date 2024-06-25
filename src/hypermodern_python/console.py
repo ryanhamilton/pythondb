@@ -57,18 +57,36 @@ if __name__ == "__main__":
 
 
 class QueryProcessor:
-    def query(self, sql) -> DataFrame:
-        print(f"SQL string: {sql}")
+    def __init__(self):
+        self.query_lang = "py"
+        self.dcon = duckdb.connect(":default:")
         data = {"a": [1, 2], "b": [33, 41]}
         plx = pl.DataFrame(data)
         pdx = pd.DataFrame(data)
-        d = {"plx": plx, "pdx": pdx}
+        self.mylocals = {"plx": plx, "pdx": pdx}
+        self.ctx = pl.SQLContext(register_globals=True, eager=True, frames={"plx": plx})
 
-        if sql.startswith("s)"):
-            s = sql[2:]
-            r = duckdb.sql(s).pl()
+    def setlang(self, lg:str):
+        self.query_lang = lg
+
+    def query(self, sql) -> DataFrame:
+        s = sql
+        if len(s) < 3 or s[2] != '>':
+            s = self.query_lang + '>' + s
+
+        print(f"SQL string: {sql}")
+
+        if s.startswith("dk>"):
+            q = s[3:]
+            r = self.dcon.sql(q).pl()
+        elif s.startswith("pl>"):
+            q = s[3:]
+            r = self.ctx.execute(q)
+        elif s.startswith(">>>") or s.startswith("py>"):
+            q = s[3:]
+            r = exec_with_return(q, self.mylocals, globals())
         else:
-            r = exec_with_return(sql, d, globals())
+            r = exec_with_return(sql, self.mylocals, globals())
 
         if isinstance(r, pd.DataFrame):
             r = pl.from_pandas(r)

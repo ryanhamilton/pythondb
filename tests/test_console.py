@@ -130,9 +130,22 @@ duckdb.sql("SELECT 42 AS i")"""
     assert runner.query(qry).__str__() == "shape: (1, 1)\n┌─────┐\n│ i   │\n│ --- │\n│ i32 │\n╞═════╡\n│ 42  │\n└─────┘"
 
 
-def test_python_duckdb(runner: QueryProcessor) -> None:
-    qry = """import duckdb
-duckdb.sql("SELECT 42 AS i")"""
-    assert runner.query(qry).__str__() == "shape: (1, 1)\n┌─────┐\n│ i   │\n│ --- │\n│ i32 │\n╞═════╡\n│ 42  │\n└─────┘"
+def test_dk(runner: QueryProcessor) -> None:
+    assert runner.query("dk>select 13 as c").__str__() == "shape: (1, 1)\n┌─────┐\n│ c   │\n│ --- │\n│ i32 │\n╞═════╡\n│ 13  │\n└─────┘"
 
-con.execute("SELECT * FROM items")
+
+def test_pl(runner: QueryProcessor) -> None:
+    assert runner.query("pl>SELECT * FROM plx;").__str__() == """shape: (2, 2)
+┌─────┬─────┐
+│ a   ┆ b   │
+│ --- ┆ --- │
+│ i64 ┆ i64 │
+╞═════╪═════╡
+│ 1   ┆ 33  │
+│ 2   ┆ 41  │
+└─────┴─────┘"""
+
+
+def test_py(runner: QueryProcessor) -> None:
+    assert runner.query("py>2+3").__str__() == 'shape: (1, 1)\n┌─────┐\n│ int │\n│ --- │\n│ i64 │\n╞═════╡\n│ 5   │\n└─────┘'
+    assert runner.query(">>>2+3").__str__() == 'shape: (1, 1)\n┌─────┐\n│ int │\n│ --- │\n│ i64 │\n╞═════╡\n│ 5   │\n└─────┘'
