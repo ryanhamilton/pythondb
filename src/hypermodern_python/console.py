@@ -13,7 +13,7 @@ import pandas as pd
 import os
 
 # TO allow pyinstaller to find imports
-import pyarrow
+import pyarrow as pa
 import xlsxwriter
 import numpy as np
 
@@ -98,7 +98,10 @@ class QueryProcessor:
             return pl.from_dict(obj)
         elif isinstance(obj, set):
             return pl.DataFrame({"set": list(obj)})
-        return pl.DataFrame({"unrecognised": "unrecognised"})
+        elif isinstance(obj, duckdb.DuckDBPyRelation):
+            return obj.pl()
+        print(obj)
+        return pl.DataFrame({"unrecognised": type(obj)})
 
 class MySession(Session):
     def __init__(self, queryProcessor: QueryProcessor):

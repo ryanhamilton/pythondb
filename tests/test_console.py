@@ -123,3 +123,16 @@ df = pd.DataFrame(data, columns=['Name', 'Age'])"""
 │ nick ┆ 11  │
 │ juli ┆ 14  │
 └──────┴─────┘"""
+
+def test_python_duckdb(runner: QueryProcessor) -> None:
+    qry = """import duckdb
+duckdb.sql("SELECT 42 AS i")"""
+    assert runner.query(qry).__str__() == "shape: (1, 1)\n┌─────┐\n│ i   │\n│ --- │\n│ i32 │\n╞═════╡\n│ 42  │\n└─────┘"
+
+
+def test_python_duckdb(runner: QueryProcessor) -> None:
+    qry = """import duckdb
+duckdb.sql("SELECT 42 AS i")"""
+    assert runner.query(qry).__str__() == "shape: (1, 1)\n┌─────┐\n│ i   │\n│ --- │\n│ i32 │\n╞═════╡\n│ 42  │\n└─────┘"
+
+con.execute("SELECT * FROM items")
