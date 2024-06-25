@@ -146,6 +146,24 @@ def test_pl(runner: QueryProcessor) -> None:
 └─────┴─────┘"""
 
 
+def test_none(runner: QueryProcessor) -> None:
+    assert runner.query(">>>None").__str__() == 'shape: (0, 1)\n┌──────┐\n│ None │\n│ ---  │\n│ null │\n╞══════╡\n└──────┘'
+
+
 def test_py(runner: QueryProcessor) -> None:
     assert runner.query("py>2+3").__str__() == 'shape: (1, 1)\n┌─────┐\n│ int │\n│ --- │\n│ i64 │\n╞═════╡\n│ 5   │\n└─────┘'
     assert runner.query(">>>2+3").__str__() == 'shape: (1, 1)\n┌─────┐\n│ int │\n│ --- │\n│ i64 │\n╞═════╡\n│ 5   │\n└─────┘'
+
+
+def test_py_created_vars_visible_in_dk_and_pl(runner: QueryProcessor) -> None:
+    runner.query('py>testboth = pl.DataFrame({"a":[11,33]})')
+    exp = """shape: (1, 1)
+┌─────┐
+│ m   │
+│ --- │
+│ i64 │
+╞═════╡
+│ 33  │
+└─────┘"""
+    assert runner.query("dk>SELECT max(a) AS m FROM testboth").__str__() == exp
+    assert runner.query("pl>SELECT max(a) AS m FROM testboth").__str__() == exp

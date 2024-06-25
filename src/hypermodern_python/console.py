@@ -11,6 +11,7 @@ from mysql_mimic import MysqlServer
 import polars as pl
 import pandas as pd
 import os
+from datetime import date,datetime
 
 # TO allow pyinstaller to find imports
 import pyarrow as pa
@@ -59,34 +60,50 @@ if __name__ == "__main__":
 class QueryProcessor:
     def __init__(self):
         self.query_lang = "py"
-        self.dcon = duckdb.connect(":default:")
+        self.duckdb = duckdb.connect(":default:")
         data = {"a": [1, 2], "b": [33, 41]}
         plx = pl.DataFrame(data)
         pdx = pd.DataFrame(data)
-        self.mylocals = {"plx": plx, "pdx": pdx}
+        self.mylocals = {"plx": plx, "pdx": pdx, "qdb":self}
         self.ctx = pl.SQLContext(register_globals=True, eager=True, frames={"plx": plx})
 
     def setlang(self, lg:str):
         self.query_lang = lg
 
+    def getconfig(self):
+        return {"lang":self.query_lang}
+
     def query(self, sql) -> DataFrame:
-        s = sql
-        if len(s) < 3 or s[2] != '>':
+        s = sql.strip()
+        if s.startswith("qdb."): # Always run qdb as python. Handy to make commands standard?
+            s = ">>>" + s
+        elif len(s) < 3 or s[2] != '>': # Add default lang as prefix if none specified
             s = self.query_lang + '>' + s
 
         print(f"SQL string: {sql}")
 
         if s.startswith("dk>"):
             q = s[3:]
-            r = self.dcon.sql(q).pl()
+            r = self.duckdb.sql(q)
+            r = r.pl() if r is not None else None
         elif s.startswith("pl>"):
             q = s[3:]
             r = self.ctx.execute(q)
         elif s.startswith(">>>") or s.startswith("py>"):
             q = s[3:]
-            r = exec_with_return(q, self.mylocals, globals())
+            r = exec_with_return(q, globals(), self.mylocals)
+            # Register any newly created vars
+            polars = {}
+            for k in self.mylocals.keys():
+                v = self.mylocals[k]
+                if isinstance(v, pl.DataFrame):
+                    self.duckdb.register(k, v)
+                    polars[k] = v
+                elif isinstance(v, pd.DataFrame):
+                    self.duckdb.register(k, v)
+            self.ctx = pl.SQLContext(register_globals=True, eager=True, frames=polars)
         else:
-            r = exec_with_return(sql, self.mylocals, globals())
+            print("Error unrecognised command.")
 
         if isinstance(r, pd.DataFrame):
             r = pl.from_pandas(r)
@@ -118,6 +135,8 @@ class QueryProcessor:
             return pl.DataFrame({"set": list(obj)})
         elif isinstance(obj, duckdb.DuckDBPyRelation):
             return obj.pl()
+        elif obj is None:
+            return pl.DataFrame({"None": []})
         print(obj)
         return pl.DataFrame({"unrecognised": type(obj)})
 
@@ -245,6 +264,9 @@ def exec_with_return(code: str, globals: dict, locals: dict):
             last_expression = ast.unparse(a_last.targets[0])
         elif isinstance(a_last, (ast.AnnAssign, ast.AugAssign)):
             last_expression = ast.unparse(a_last.target)
+    print("locals before: ", locals.keys())
     exec(ast.unparse(a), globals, locals)
     if last_expression:
-        return eval(last_expression, globals, locals)
+        r = eval(last_expression, globals, locals)
+        print("locals after: ", locals.keys())
+        return r

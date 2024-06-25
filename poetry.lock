@@ -163,6 +163,30 @@ files = [
 ]
 
 [[package]]
+name = "deltalake"
+version = "0.18.1"
+description = "Native Delta Lake Python binding based on delta-rs with Pandas integration"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "deltalake-0.18.1-cp38-abi3-macosx_10_12_x86_64.whl", hash = "sha256:eea574f2f755a8378d75d33461d30ae562aad9d511f567aec6000904f67d13b4"},
+    {file = "deltalake-0.18.1-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:74b89e3b8cdfdd23d0f17465ab008b9f19882dc7497c6a8ea3d78d8be2bf893f"},
+    {file = "deltalake-0.18.1-cp38-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:52c636137e77172b6ace4c916857678e2e88a4782cfac7a21e7fc4f0f45519b1"},
+    {file = "deltalake-0.18.1-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:aa049c74979e7905c6631d9df6d419cbaf37cd07de3f0b3e3733d3f835930f5f"},
+    {file = "deltalake-0.18.1-cp38-abi3-win_amd64.whl", hash = "sha256:b8d7648fac6b4f0165173b516b3f43c0ae550bce6d6492d6016c3700c52dcb31"},
+    {file = "deltalake-0.18.1.tar.gz", hash = "sha256:aa49822a4d559d138aee5bae3e529b231dd2dc2f1fcc6272f32853c99597c867"},
+]
+
+[package.dependencies]
+pyarrow = ">=8"
+pyarrow-hotfix = "*"
+
+[package.extras]
+devel = ["mypy (>=1.8.0,<1.9.0)", "packaging (>=20)", "pytest", "pytest-benchmark", "pytest-cov", "pytest-mock", "pytest-timeout", "ruff (>=0.3.0,<0.4.0)", "sphinx (<=4.5)", "sphinx-rtd-theme", "toml", "wheel"]
+pandas = ["pandas"]
+pyspark = ["delta-spark", "numpy (==1.22.2)", "pyspark"]
+
+[[package]]
 name = "desert"
 version = "2020.11.18"
 description = "Deserialize to objects while staying DRY"
@@ -291,6 +315,34 @@ files = [
     {file = "iniconfig-2.0.0-py3-none-any.whl", hash = "sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374"},
     {file = "iniconfig-2.0.0.tar.gz", hash = "sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3"},
 ]
+
+[[package]]
+name = "kola"
+version = "0.9.0"
+description = "a Python Polars interface to kdb+/q"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "kola-0.9.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:dd6a006143713da6716ed8aad8db714f6cd287bc6fa5573176feb1f5ada60027"},
+    {file = "kola-0.9.0-cp310-cp310-manylinux_2_31_x86_64.whl", hash = "sha256:819a9d3fa3a8a8eb8ed50472f27599e9d91cb646b678f82eb825b3903a117d0c"},
+    {file = "kola-0.9.0-cp310-none-win_amd64.whl", hash = "sha256:ff9785db6a0b2ff193100085fb8aca88fab2ce9e5583152eb0db5b8450e8b9c6"},
+    {file = "kola-0.9.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:a96d88f0029c6d22a5252c74b3bebb6ac4835ab694e7b197e084ec6077e09780"},
+    {file = "kola-0.9.0-cp311-cp311-manylinux_2_34_x86_64.whl", hash = "sha256:9845eda53af703924808a218a71803e258d9271dc6fde0c05acbbd7c91358732"},
+    {file = "kola-0.9.0-cp311-none-win_amd64.whl", hash = "sha256:79495895f449db7a308634e1734e3cb293f01eb7270edd7f7a9cfa079fc8b0c8"},
+    {file = "kola-0.9.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:f1c6b8acd2952081776676e9d347c69530b94a66e342d208aa67b4a786fa02c4"},
+    {file = "kola-0.9.0-cp312-cp312-manylinux_2_34_x86_64.whl", hash = "sha256:89a039abd331aba396a10537fc36b283be5096e4ce3b90f80e0e4a48f343d08b"},
+    {file = "kola-0.9.0-cp312-none-win_amd64.whl", hash = "sha256:be17bcff1050cdf4d95360fc573c6cf683282a7356c735eabebc144c9fa94011"},
+    {file = "kola-0.9.0-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:f587feba10dd3b75042457038e1e8f0b84bfe8b0226324b9ec33225de082788c"},
+    {file = "kola-0.9.0-cp38-cp38-manylinux_2_31_x86_64.whl", hash = "sha256:f68c11ddff34c3eeb1b3e57ff07af6c128d52611838e55d3ade258276b51c01e"},
+    {file = "kola-0.9.0-cp38-none-win_amd64.whl", hash = "sha256:6feb7ec309627237cd17fa7446ba604755d0fb44f533a3c718ab2fbff70b4e48"},
+    {file = "kola-0.9.0-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:f51a0322ec24dc1b95a8875d5de9d0efe064f6a437936c4570869a6e8142f2ad"},
+    {file = "kola-0.9.0-cp39-cp39-manylinux_2_31_x86_64.whl", hash = "sha256:32887061292b210636d083e1641674863ef889451402fc003f6c7dffe6be01a4"},
+    {file = "kola-0.9.0-cp39-none-win_amd64.whl", hash = "sha256:e97bcc4b90ce8e58458a6bb1f86366dc3702245535ed5d61af33c4445d2845c7"},
+]
+
+[package.dependencies]
+polars = ">=0.20.16"
+pyarrow = ">=10.0.1"
 
 [[package]]
 name = "macholib"
@@ -606,6 +658,17 @@ files = [
 numpy = ">=1.16.6"
 
 [[package]]
+name = "pyarrow-hotfix"
+version = "0.6"
+description = ""
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "pyarrow_hotfix-0.6-py3-none-any.whl", hash = "sha256:dcc9ae2d220dff0083be6a9aa8e0cdee5182ad358d4931fce825c545e5c89178"},
+    {file = "pyarrow_hotfix-0.6.tar.gz", hash = "sha256:79d3e030f7ff890d408a100ac16d6f00b14d44a502d7897cd9fc3e3a534e9945"},
+]
+
+[[package]]
 name = "pyinstaller"
 version = "6.8.0"
 description = "PyInstaller bundles a Python application and all its dependencies into a single package."
@@ -887,4 +950,4 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "cac4955dbab285de891af3ad1253c9ebb4e35228fb8230ae1bc5c57166a5f582"
+content-hash = "e4d96f748e369d7f1a3077e36af90cbb592192fddffd4b25365e01e2f13a34bf"
