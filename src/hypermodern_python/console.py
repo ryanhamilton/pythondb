@@ -89,15 +89,15 @@ class QueryProcessor:
         elif isinstance(obj, str):
             return pl.DataFrame({"str": [obj]})
         elif isinstance(obj, list):
-            return pl.DataFrame({"list": [obj]})
+            return pl.DataFrame({"list": obj})
         elif isinstance(obj, tuple):
             return pl.DataFrame({"tuple": [obj]})
         elif isinstance(obj, range):
             return pl.DataFrame({"range": [obj]})
         elif isinstance(obj, dict):
-            return pl.DataFrame(dict)
+            return pl.from_dict(obj)
         elif isinstance(obj, set):
-            return pl.DataFrame({"set": obj})
+            return pl.DataFrame({"set": list(obj)})
         return pl.DataFrame({"unrecognised": "unrecognised"})
 
 class MySession(Session):
