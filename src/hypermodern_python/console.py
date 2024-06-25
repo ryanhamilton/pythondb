@@ -1,7 +1,7 @@
 """Command-line interface."""
 import ast
 import textwrap
-
+import sys
 import click
 import code
 import asyncio
@@ -28,7 +28,7 @@ from polars import DataFrame
 from polars.interchange.dataframe import PolarsDataFrame
 
 from .mysession import Session
-from . import __version__, wikipedia
+from . import __version__
 
 
 @click.command()
@@ -44,13 +44,14 @@ from . import __version__, wikipedia
 def main(language: str) -> None:
     """The hypermodern Python project."""
     click.secho("QuantDB", fg="green")
-    #https://bernsteinbear.com/blog/simple-python-repl/
+    # https://bernsteinbear.com/blog/simple-python-repl/
     print("Launching......")
     queryProcessor = QueryProcessor()
     thread.start_new_thread(start_web, (queryProcessor, 8080))
     thread.start_new_thread(start_sql, (queryProcessor, 3306))
-    repl = code.InteractiveConsole()
+    repl = Repl(queryProcessor)
     repl.interact(banner="", exitmsg="")
+
 
 
 if __name__ == "__main__":
@@ -73,15 +74,21 @@ class QueryProcessor:
     def getconfig(self):
         return {"lang":self.query_lang}
 
-    def query(self, sql) -> DataFrame:
+    def getps1(self):
+        return '>>>' if self.query_lang == 'py' else (self.query_lang + ">")
+
+    def queryraw(self, sql):
+        print(f"SQL string: {sql}")
+
         s = sql.strip()
-        if s.startswith("qdb."): # Always run qdb as python. Handy to make commands standard?
+        if len(s) == 0:
+            return None
+        elif s.startswith("qdb."): # Always run qdb as python. Handy to make commands standard?
             s = ">>>" + s
         elif len(s) < 3 or s[2] != '>': # Add default lang as prefix if none specified
             s = self.query_lang + '>' + s
 
-        print(f"SQL string: {sql}")
-
+        r = None
         if s.startswith("dk>"):
             q = s[3:]
             r = self.duckdb.sql(q)
@@ -92,6 +99,7 @@ class QueryProcessor:
         elif s.startswith(">>>") or s.startswith("py>"):
             q = s[3:]
             r = exec_with_return(q, globals(), self.mylocals)
+            print(r)
             # Register any newly created vars
             polars = {}
             for k in self.mylocals.keys():
@@ -105,9 +113,10 @@ class QueryProcessor:
         else:
             print("Error unrecognised command.")
 
-        if isinstance(r, pd.DataFrame):
-            r = pl.from_pandas(r)
-        return self.to_pdf(r)
+        return r
+
+    def query(self, sql) -> DataFrame:
+        return self.to_pdf(self.queryraw(sql))
 
     @staticmethod
     def to_pdf(obj) -> DataFrame:
@@ -135,10 +144,29 @@ class QueryProcessor:
             return pl.DataFrame({"set": list(obj)})
         elif isinstance(obj, duckdb.DuckDBPyRelation):
             return obj.pl()
+        if isinstance(obj, pd.DataFrame):
+            return pl.from_pandas(obj)
         elif obj is None:
             return pl.DataFrame({"None": []})
         print(obj)
         return pl.DataFrame({"unrecognised": type(obj)})
+
+class Repl(code.InteractiveConsole):
+    def __init__(self, queryProcessor: QueryProcessor):
+        super().__init__()
+        self.queryProcessor = queryProcessor
+        sys.ps1 = self.queryProcessor.getps1()
+
+    def runsource(self, source: str, filename="<input>", symbol="single"):
+        if len(source.strip()) == 0:
+            return
+        try:
+            r = self.queryProcessor.queryraw(source)
+            if r is not None:
+                print(r)
+        except Exception as error:
+            print(error)
+        sys.ps1 = self.queryProcessor.getps1()
 
 class MySession(Session):
     def __init__(self, queryProcessor: QueryProcessor):
