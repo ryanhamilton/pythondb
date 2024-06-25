@@ -90,15 +90,18 @@ class QueryProcessor:
 
         r = None
         if s.startswith("dk>"):
-            q = s[3:]
-            r = self.duckdb.sql(q)
+            while s.startswith("dk>"):
+                s = s[3:]
+            r = self.duckdb.sql(s)
             r = r.pl() if r is not None else None
         elif s.startswith("pl>"):
-            q = s[3:]
-            r = self.ctx.execute(q)
+            while s.startswith("pl>"):
+                s = s[3:]
+            r = self.ctx.execute(s)
         elif s.startswith(">>>") or s.startswith("py>"):
-            q = s[3:]
-            r = exec_with_return(q, globals(), self.mylocals)
+            while s.startswith(">>>") or s.startswith("py>"):
+                s = s[3:]
+            r = exec_with_return(s, globals(), self.mylocals)
             print(r)
             # Register any newly created vars
             polars = {}

@@ -132,10 +132,11 @@ duckdb.sql("SELECT 42 AS i")"""
 
 def test_dk(runner: QueryProcessor) -> None:
     assert runner.query("dk>select 13 as c").__str__() == "shape: (1, 1)\n┌─────┐\n│ c   │\n│ --- │\n│ i32 │\n╞═════╡\n│ 13  │\n└─────┘"
+    assert runner.query("dk>dk>dk>dk>dk>dk>dk>select 13 as c").__str__() == "shape: (1, 1)\n┌─────┐\n│ c   │\n│ --- │\n│ i32 │\n╞═════╡\n│ 13  │\n└─────┘"
 
 
 def test_pl(runner: QueryProcessor) -> None:
-    assert runner.query("pl>SELECT * FROM plx;").__str__() == """shape: (2, 2)
+    exp = """shape: (2, 2)
 ┌─────┬─────┐
 │ a   ┆ b   │
 │ --- ┆ --- │
@@ -144,10 +145,15 @@ def test_pl(runner: QueryProcessor) -> None:
 │ 1   ┆ 33  │
 │ 2   ┆ 41  │
 └─────┴─────┘"""
+    assert runner.query("pl>SELECT * FROM plx;").__str__() == exp
+    assert runner.query("pl>pl>pl>pl>pl>pl>SELECT * FROM plx;").__str__() == exp
 
 
 def test_none(runner: QueryProcessor) -> None:
-    assert runner.query(">>>None").__str__() == 'shape: (0, 1)\n┌──────┐\n│ None │\n│ ---  │\n│ null │\n╞══════╡\n└──────┘'
+    exp = 'shape: (0, 1)\n┌──────┐\n│ None │\n│ ---  │\n│ null │\n╞══════╡\n└──────┘'
+    assert runner.query(">>>None").__str__() == exp
+    assert runner.query(">>>>>>>>>None").__str__() == exp
+    assert runner.query("py>py>py>py>None").__str__() == exp
 
 
 def test_py(runner: QueryProcessor) -> None:
