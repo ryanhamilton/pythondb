@@ -22,6 +22,8 @@ import urllib.parse
 import duckdb
 import _thread as thread
 from http.server import HTTPServer, BaseHTTPRequestHandler
+
+from polars import DataFrame
 from polars.interchange.dataframe import PolarsDataFrame
 
 from .mysession import Session
@@ -40,7 +42,7 @@ from . import __version__, wikipedia
 @click.version_option(version=__version__)
 def main(language: str) -> None:
     """The hypermodern Python project."""
-    click.secho("HelloWOrld2", fg="green")
+    click.secho("QuantDB", fg="green")
     #https://bernsteinbear.com/blog/simple-python-repl/
     print("Launching......")
     queryProcessor = QueryProcessor()
@@ -55,7 +57,7 @@ if __name__ == "__main__":
 
 
 class QueryProcessor:
-    def query(self, sql) -> PolarsDataFrame:
+    def query(self, sql) -> DataFrame:
         print(f"SQL string: {sql}")
         data = {"a": [1, 2], "b": [33, 41]}
         plx = pl.DataFrame(data)
@@ -70,18 +72,55 @@ class QueryProcessor:
 
         if isinstance(r, pd.DataFrame):
             r = pl.from_pandas(r)
-        return r
+        return self.to_pdf(r)
 
+    @staticmethod
+    def to_pdf(obj) -> DataFrame:
+        if isinstance(obj, pl.DataFrame):
+            return obj
+        elif isinstance(obj, bool):
+            return pl.DataFrame({"bool": [obj]})
+        elif isinstance(obj, int):
+            return pl.DataFrame({"int": [obj]})
+        elif isinstance(obj, float):
+            return pl.DataFrame({"float": [obj]})
+        elif isinstance(obj, complex):
+            return pl.DataFrame({"complex": [obj]})
+        elif isinstance(obj, str):
+            return pl.DataFrame({"str": [obj]})
+        elif isinstance(obj, list):
+            return pl.DataFrame({"list": [obj]})
+        elif isinstance(obj, tuple):
+            return pl.DataFrame({"tuple": [obj]})
+        elif isinstance(obj, range):
+            return pl.DataFrame({"range": [obj]})
+        elif isinstance(obj, dict):
+            return pl.DataFrame(dict)
+        elif isinstance(obj, set):
+            return pl.DataFrame({"set": obj})
+        return pl.DataFrame({"unrecognised": "unrecognised"})
 
 class MySession(Session):
     def __init__(self, queryProcessor: QueryProcessor):
         super().__init__()
         self.queryProcessor = queryProcessor
 
+    # 22
+    # 3.3
+    # complex(5, 3)
+    # "ab"
+    # [2, 3]
+    # ("pp", 22)
+    # range(4)
+    # {"a": 11, "b": 12}
+    # True
+    # {"apple", "banana", "cherry"}
+
     async def query(self, expression, sql, attrs):
         r = self.queryProcessor.query(sql)
         if isinstance(r, pl.DataFrame):
             return r.rows(), r.columns
+
         return [("a", 1), ("b", 2)], ["col1", "col2"]
 
     async def schema(self):
