@@ -1,5 +1,6 @@
 """Command-line interface."""
 import ast
+import cgi
 import textwrap
 import sys
 import click
@@ -232,7 +233,8 @@ class Serv(BaseHTTPRequestHandler):
         "js": "text/javascript",
         "plain": "text/plain",
         "xls": "application/vnd.ms-excel",
-        "csv": "text/comma-separated-values"
+        "csv": "text/comma-separated-values",
+        "json": "application/json",
     }
 
     def set_content_type(self):
@@ -244,6 +246,26 @@ class Serv(BaseHTTPRequestHandler):
     def query(self, qr: str) -> PolarsDataFrame:
         qry = urllib.parse.unquote(qr)
         return self.queryProcessor.query(qry)
+
+    def set_headers(self):
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+        self.send_header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+        self.send_header("Access-Control-Allow-Headers", "X-Requested-With")
+
+    def do_POST(self):
+        self.set_headers()
+        self.send_header('Content-type', self.extensions['json'])
+        self.end_headers()
+        self.wfile.write(b'{"tbl":{"data":[{"a":1,"b":3},{"a":2,"b":4}], "types":{"a":"number","b":"number"}}}')
+
+    def do_OPTIONS(self):
+        # issue two requests, first one OPTIONS and then the GET request.
+        # 501 Unsupported method ('OPTIONS')) caused by CORS and by requesting the "Content-Type: application/json; charset=utf-8".
+        # To solve the error, I enabled CORS in do_OPTIONS and enabled clients to request a specific content type.
+        self.set_headers()
+        self.end_headers()
 
     def do_GET(self):
         p = 'html' + self.path
