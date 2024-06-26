@@ -12,6 +12,7 @@ from mysql_mimic import MysqlServer
 import polars as pl
 import pandas as pd
 import os
+from urllib.parse import parse_qs
 from datetime import date,datetime
 
 # TO allow pyinstaller to find imports
@@ -25,8 +26,8 @@ import urllib.parse
 import duckdb
 import _thread as thread
 from http.server import HTTPServer, BaseHTTPRequestHandler
-
-from polars import DataFrame
+import json
+from polars import DataFrame, Int32
 from polars.interchange.dataframe import PolarsDataFrame
 
 from .mysession import Session
@@ -220,6 +221,11 @@ class MySession(Session):
         }
 
 
+def todashtype(pltype):
+    if pltype == Int32:
+        return 'number'
+    return pltype
+
 class Serv(BaseHTTPRequestHandler):
     def __init__(self, queryProcessor: QueryProcessor, *args, **kwargs):
         self.queryProcessor = queryProcessor
@@ -255,10 +261,26 @@ class Serv(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Headers", "X-Requested-With")
 
     def do_POST(self):
+        print("POST: ", self.path)
         self.set_headers()
         self.send_header('Content-type', self.extensions['json'])
         self.end_headers()
-        self.wfile.write(b'{"tbl":{"data":[{"a":1,"b":3},{"a":2,"b":4}], "types":{"a":"number","b":"number"}}}')
+        # r = self.query(self.path)
+        data_string = self.rfile.read(int(self.headers['Content-Length']))
+        jsdict = json.loads(data_string)
+        r = self.query(jsdict['query'])
+        print(r)
+        self.wfile.write(b'{"tbl":{"data":')
+        r.write_json(self.wfile, row_oriented=True)
+        ptypes = {}
+        idx = 0
+        for c in r.columns:
+            ptypes[c] = todashtype(r.dtypes[idx])
+            idx = idx + 1
+
+        self.wfile.write(b', "types":')
+        self.wfile.write(bytes(json.dumps(ptypes), 'utf-8'))
+        self.wfile.write(b'}}')
 
     def do_OPTIONS(self):
         # issue two requests, first one OPTIONS and then the GET request.
