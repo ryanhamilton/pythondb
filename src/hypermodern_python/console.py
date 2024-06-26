@@ -17,6 +17,7 @@ from datetime import date,datetime
 import pyarrow as pa
 import xlsxwriter
 import numpy as np
+import kola
 
 import tempfile
 import urllib.parse
@@ -75,7 +76,7 @@ class QueryProcessor:
         return {"lang":self.query_lang}
 
     def getps1(self):
-        return '>>>' if self.query_lang == 'py' else (self.query_lang + ">")
+        return '>>>' if self.query_lang == 'py' else 'q)' if self.query_lang == 'q' else (self.query_lang + ">")
 
     def queryraw(self, sql):
         print(f"SQL string: {sql}")
@@ -85,8 +86,10 @@ class QueryProcessor:
             return None
         elif s.startswith("qdb."): # Always run qdb as python. Handy to make commands standard?
             s = ">>>" + s
-        elif len(s) < 3 or s[2] != '>': # Add default lang as prefix if none specified
-            s = self.query_lang + '>' + s
+        elif len(s) < 3 or (s[2] != '>' and not s.startswith("q)")): # Add default lang as prefix if none specified
+            s = ((self.query_lang + '>') if self.query_lang != 'q' else 'q)') + s
+        elif self.query_lang == 'q':
+            s = 'q)' + s
 
         r = None
         if s.startswith("dk>"):
@@ -113,6 +116,17 @@ class QueryProcessor:
                 elif isinstance(v, pd.DataFrame):
                     self.duckdb.register(k, v)
             self.ctx = pl.SQLContext(register_globals=True, eager=True, frames=polars)
+        elif s.startswith("q)"):
+            while s.startswith("q)"):
+                s = s[2:]
+            if s == '2+2':
+                return 4
+            elif s == 'til 10':
+                return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+            elif s == '\\\\':
+                exit(0)
+            else:
+                raise Exception("NYI")
         else:
             print("Error unrecognised command.")
 
