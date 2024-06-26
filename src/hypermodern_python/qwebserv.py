@@ -50,7 +50,7 @@ class QWebServ(BaseHTTPRequestHandler):
 
     def query(self, qr: str) -> pl.DataFrame:
         qry = urllib.parse.unquote(qr)
-        return self.queryProcessor.query(qry)
+        return self.query_processor.query(qry)
 
     def set_headers(self):
         self.send_response(200)
