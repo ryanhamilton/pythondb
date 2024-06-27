@@ -101,11 +101,11 @@ class QueryProcessor:
             while s.startswith("q)"):
                 s = s[2:]
             if s == '2+2':
-                return 4
+                r = 4
             elif s == 'til 10':
-                return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                r = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
             elif s == '.z.K':
-                return 5.0
+                r = 5.0
             elif s == '\\\\':
                 exit(0)
             else:
