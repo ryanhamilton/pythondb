@@ -5,6 +5,8 @@ import pytest
 import _thread as thread
 import time
 import json
+
+from mysql.connector import FieldType
 from mysql.connector.fabric import MySQLFabricConnection
 
 from src.hypermodern_python.console import QueryProcessor
@@ -29,8 +31,15 @@ def fetchall(qry:str) -> None:
     connection = mysql.connector.connect(host="localhost", user="", password="",database="")
     cursor = connection.cursor()
     cursor.execute(qry)
-    return cursor.fetchall().__str__()
+
+    s = "["
+    for i in range(len(cursor.description)):
+        desc = cursor.description[i]
+        s = s + (desc[0] + ': ' + FieldType.get_info(desc[1]) + ', ')
+    s = s + "]  "
+    s = s + cursor.fetchall().__str__()
+    return s
 
 
 def test_two(runner: MySQLFabricConnection) -> None:
-    assert fetchall('q)2+2') == '[(4,)]'
+    assert fetchall('q)2+2') == "[int: LONGLONG, ]  [(4,)]"
