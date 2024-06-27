@@ -85,8 +85,12 @@ class QWebServ(BaseHTTPRequestHandler):
         self.end_headers()
         # r = self.query(self.path)
         data_string = self.rfile.read(int(self.headers['Content-Length']))
-        jsdict = json.loads(data_string)
-        r = self.query(jsdict['query'])
+        if self.headers['Content-type'] == self.extensions['json']:
+            jsdict = json.loads(data_string)
+            qry = jsdict['query']
+        else:
+            qry = data_string
+        r = self.query(qry)
         print(r)
         self.write_json(self.wfile, r)
 
@@ -122,6 +126,20 @@ class QWebServ(BaseHTTPRequestHandler):
                     self.wfile.write(bytes(open(tmp.name).read(), 'utf-8'))
             else:
                 r.write_csv(self.wfile)
+        elif self.path == '/api/servertree':
+            self.set_headers()
+            self.send_header("Content-type", self.extensions['json'])
+            self.end_headers()
+            r = self.query("dk>show tables;")
+            s = "["
+            i = 0
+            for c in r.get_column("name"):
+                # server: String, namespace: String, name: String, fullName: String, type: String, query: String,
+                # Partial info: String.Or(Undefined), db: String.Or(Undefined), columns: String.Or(Undefined)
+                s = s + (',' if i > 0 else '') + '{"server":"pythondb", "name":"' + c + '", "namespace":"", "fullName":"' + c + '", "type":"table", "query":"dk>SELECT * FROM ' + c + ' LIMIT 1000"}'
+                i = i + 1
+            s = s + "]"
+            self.wfile.write(bytes(s, 'utf-8'))
         elif os.path.exists(p):
             try:
                 file_to_open = open(p).read()
