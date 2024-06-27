@@ -34,6 +34,9 @@ pyinstaller = {version = "^6.8.0", python="^3.8,<3.13"}
 [tool.poetry.scripts]
 qdb = "hypermodern_python.console:main"
 
+[tool.poetry.group.test.dependencies]
+mysql-connector = "^2.2.9"
+
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
 

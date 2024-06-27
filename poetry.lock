@@ -389,6 +389,16 @@ files = [
 ]
 
 [[package]]
+name = "mysql-connector"
+version = "2.2.9"
+description = "MySQL driver written in Python"
+optional = false
+python-versions = "*"
+files = [
+    {file = "mysql-connector-2.2.9.tar.gz", hash = "sha256:1733e6ce52a049243de3264f1fbc22a852cb35458c4ad739ba88189285efdf32"},
+]
+
+[[package]]
 name = "mysql-mimic"
 version = "2.5.5"
 description = "A python implementation of the mysql server protocol"
@@ -950,4 +960,4 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "e4d96f748e369d7f1a3077e36af90cbb592192fddffd4b25365e01e2f13a34bf"
+content-hash = "aee38a875e33463f08b5784f6a696803cf9f8607766a97c81bf1985fbc50602b"
