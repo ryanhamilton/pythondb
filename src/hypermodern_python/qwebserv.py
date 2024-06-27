@@ -140,17 +140,17 @@ class QWebServ(BaseHTTPRequestHandler):
                 i = i + 1
             s = s + "]"
             self.wfile.write(bytes(s, 'utf-8'))
-        elif os.path.exists(p):
+        else:
+            p = p if os.path.exists(p) else 'html/index.html'
             try:
-                file_to_open = open(p).read()
+                enc = "utf8" if (p.endswith(".css") or p.endswith(".css")) else None
+                file_to_open = open(p, encoding=enc).read()
                 self.send_response(200)
                 self.set_content_type()
-            except:
+            except Exception as e:
+                print(e)
                 file_to_open = "File not found"
                 self.send_response(404)
             self.end_headers()
             self.wfile.write(bytes(file_to_open, 'utf-8'))
-        else:
-            self.end_headers()
-            self.wfile.write(b'Hello, World!')
 

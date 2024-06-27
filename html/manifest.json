@@ -1,0 +1,39 @@
+{
+  "short_name": "Pulse",
+  "name": "Pulse",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "android-chrome-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "android-chrome-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "minimal-ui",
+  "display-override": ["browser"],
+  "theme_color": "#000000",
+  "background_color": "#DDDDDD",
+  "screenshots" : [
+    {
+      "src": "/img/pulse-interactive-table.png",
+      "sizes": "640x360",
+      "form_factor": "wide",
+      "label": "Pulse - Real-time Dashboards."
+    },
+    {
+      "src": "/img/pulse-mobile-vertical.png",
+      "sizes": "356x739",
+      "label": "Pulse - Real-time Dashboards."
+    }
+  ]
+}

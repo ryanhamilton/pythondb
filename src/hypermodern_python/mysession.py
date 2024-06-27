@@ -640,12 +640,11 @@ class MySession(Session):
     async def schema(self):
         # Optionally provide the database schema.
         # This is used to serve INFORMATION_SCHEMA and SHOW queries.
-        return {
-            "table": {
-                "col1": "TEXT",
-                "col2": "INT",
-            }
-        }
+        tbls = self.queryProcessor.query("dk>show tables;")
+        r = {}
+        for c in tbls.get_column("name"):
+            r[c] = {"col1": "TEXT", "col2": "INT", }
+        return r
 
 def start_sql(queryProcessor: QueryProcessor, port: int):
     print("Starting MySQL Server port: ", port)

@@ -42,13 +42,13 @@ def exec_with_return(code: str, globals: dict, locals: dict):
 
 class QueryProcessor:
     def __init__(self):
-        self.query_lang = "py"
+        self.query_lang = "dk"
         self.duckdb = duckdb.connect(":default:")
         data = {"a": [1, 2], "b": [33, 41]}
         plx = pl.DataFrame(data)
         pdx = pd.DataFrame(data)
-        self.mylocals = {"plx": plx, "pdx": pdx, "qdb":self}
-        self.ctx = pl.SQLContext(register_globals=True, eager=True, frames={"plx": plx})
+        self.mylocals = {"qdb":self}
+        self.ctx = pl.SQLContext(register_globals=True, eager=True, frames={})
 
     def setlang(self, lg:str):
         self.query_lang = lg
