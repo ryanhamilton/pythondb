@@ -1,4 +1,5 @@
 import os
+from functools import partial
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
 from polars import DataFrame, Int32, Int64
@@ -9,6 +10,11 @@ import tempfile
 
 from src.hypermodern_python.queryprocessor import QueryProcessor
 
+def start_web(query_processor: QueryProcessor, port: int):
+    print("Starting Webserver port: ", port)
+    handler = partial(QWebServ, query_processor)
+    httpd = HTTPServer(('localhost', port), handler)
+    httpd.serve_forever()
 
 def to_dashtype(pltype: pl.DataType) -> str:
     if pltype.is_numeric():

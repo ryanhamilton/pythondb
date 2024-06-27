@@ -1,10 +1,8 @@
 """Command-line interface."""
 import sys
-from http.server import HTTPServer
 
 import click
 import code
-import asyncio
 from functools import partial
 
 from mysql_mimic import MysqlServer
@@ -25,7 +23,7 @@ import _thread as thread
 from polars import DataFrame
 
 from src.hypermodern_python.queryprocessor import QueryProcessor
-from src.hypermodern_python.qwebserv import QWebServ
+from src.hypermodern_python.qwebserv import start_web
 from .mysession import Session
 from . import __version__
 
@@ -106,13 +104,6 @@ class MySession(Session):
                 "col2": "INT",
             }
         }
-
-
-def start_web(query_processor: QueryProcessor, port: int):
-    print("Starting Webserver port: ", port)
-    handler = partial(QWebServ, query_processor)
-    httpd = HTTPServer(('localhost', port), handler)
-    httpd.serve_forever()
 
 
 def start_sql(queryProcessor: QueryProcessor, port: int):
