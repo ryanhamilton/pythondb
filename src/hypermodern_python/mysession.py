@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import asyncio
 from dataclasses import dataclass
 from datetime import datetime, timezone as timezone_
+from functools import partial
 from typing import (
     Dict,
     List,
@@ -42,6 +44,10 @@ from mysql_mimic.variables import (
     parse_timezone,
 )
 from mysql_mimic.results import AllowedResult
+
+from mysql_mimic import MysqlServer
+from src.hypermodern_python.queryprocessor import QueryProcessor
+import polars as pl
 
 if TYPE_CHECKING:
     from mysql_mimic.connection import Connection
@@ -606,3 +612,44 @@ class Session(BaseSession):
     def timezone(self) -> timezone_:
         tz = self.variables.get("time_zone")
         return parse_timezone(tz)
+
+
+class MySession(Session):
+    def __init__(self, queryProcessor: QueryProcessor):
+        super().__init__()
+        self.queryProcessor = queryProcessor
+
+    # 22
+    # 3.3
+    # complex(5, 3)
+    # "ab"
+    # [2, 3]
+    # ("pp", 22)
+    # range(4)
+    # {"a": 11, "b": 12}
+    # True
+    # {"apple", "banana", "cherry"}
+
+    async def query(self, expression, sql, attrs):
+        r = self.queryProcessor.query(sql)
+        if isinstance(r, pl.DataFrame):
+            return r.rows(), r.columns
+
+        return [("a", 1), ("b", 2)], ["col1", "col2"]
+
+    async def schema(self):
+        # Optionally provide the database schema.
+        # This is used to serve INFORMATION_SCHEMA and SHOW queries.
+        return {
+            "table": {
+                "col1": "TEXT",
+                "col2": "INT",
+            }
+        }
+
+def start_sql(queryProcessor: QueryProcessor, port: int):
+    print("Starting MySQL Server port: ", port)
+    handler = partial(MySession, queryProcessor)
+    server = MysqlServer(session_factory=handler, port=port)
+    asyncio.run(server.serve_forever())
+

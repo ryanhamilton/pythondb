@@ -3,9 +3,7 @@ import sys
 
 import click
 import code
-from functools import partial
 
-from mysql_mimic import MysqlServer
 import polars as pl
 import pandas as pd
 
@@ -24,7 +22,7 @@ from polars import DataFrame
 
 from src.hypermodern_python.queryprocessor import QueryProcessor
 from src.hypermodern_python.qwebserv import start_web
-from .mysession import Session
+from .mysession import Session, start_sql
 from . import __version__
 
 
@@ -71,44 +69,3 @@ class Repl(code.InteractiveConsole):
         except Exception as error:
             print(error)
         sys.ps1 = self.queryProcessor.getps1()
-
-class MySession(Session):
-    def __init__(self, queryProcessor: QueryProcessor):
-        super().__init__()
-        self.queryProcessor = queryProcessor
-
-    # 22
-    # 3.3
-    # complex(5, 3)
-    # "ab"
-    # [2, 3]
-    # ("pp", 22)
-    # range(4)
-    # {"a": 11, "b": 12}
-    # True
-    # {"apple", "banana", "cherry"}
-
-    async def query(self, expression, sql, attrs):
-        r = self.queryProcessor.query(sql)
-        if isinstance(r, pl.DataFrame):
-            return r.rows(), r.columns
-
-        return [("a", 1), ("b", 2)], ["col1", "col2"]
-
-    async def schema(self):
-        # Optionally provide the database schema.
-        # This is used to serve INFORMATION_SCHEMA and SHOW queries.
-        return {
-            "table": {
-                "col1": "TEXT",
-                "col2": "INT",
-            }
-        }
-
-
-def start_sql(queryProcessor: QueryProcessor, port: int):
-    print("Starting MySQL Server port: ", port)
-    handler = partial(MySession, queryProcessor)
-    server = MysqlServer(session_factory=handler, port=port)
-    asyncio.run(server.serve_forever())
-
