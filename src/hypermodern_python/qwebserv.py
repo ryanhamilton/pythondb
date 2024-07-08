@@ -79,20 +79,24 @@ class QWebServ(BaseHTTPRequestHandler):
         file.write(b'}}')
 
     def do_POST(self):
-        print("POST: ", self.path)
-        self.set_headers()
-        self.send_header('Content-type', self.extensions['json'])
-        self.end_headers()
-        # r = self.query(self.path)
-        data_string = self.rfile.read(int(self.headers['Content-Length']))
-        if self.headers['Content-type'] == self.extensions['json']:
-            jsdict = json.loads(data_string)
-            qry = jsdict['query']
-        else:
-            qry = data_string
-        r = self.query(qry)
-        print(r)
-        self.write_json(self.wfile, r)
+        try:
+            print("POST: ", self.path)
+            self.set_headers()
+            self.send_header('Content-type', self.extensions['json'])
+            self.end_headers()
+            # r = self.query(self.path)
+            data_string = self.rfile.read(int(self.headers['Content-Length']))
+            if self.headers['Content-type'] == self.extensions['json']:
+                jsdict = json.loads(data_string)
+                qry = jsdict['query']
+            else:
+                qry = data_string
+            r = self.query(qry)
+            print(r)
+            self.write_json(self.wfile, r)
+        except Exception as e:
+            print(e)
+            self.send_response(500)
 
     def do_OPTIONS(self):
         # issue two requests, first one OPTIONS and then the GET request.
@@ -102,55 +106,59 @@ class QWebServ(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        p = 'html' + self.path
-        print(p)
-        if self.path == '/':
-            p = 'html/index.html'
+        try:
+            p = 'html' + self.path
+            print(p)
+            if self.path == '/':
+                p = 'html/index.html'
 
-        if self.path.startswith("/?]"):
-            r = self.query(self.path[3:])
-            self.wfile.write(bytes(r._repr_html_(), 'utf-8'))
-        elif (self.path.startswith("/file.csv?") or self.path.startswith("/t.csv?")
-              or self.path.startswith("/file.xls?") or self.path.startswith("/t.xls?")):
-            p = self.path.index("?")
-            typ = self.path[p - 3:p]
-            r = self.query(self.path[p + 1:])
-            self.send_response(200)
-            self.send_header("Content-type", self.extensions[typ])
-            self.send_header("Content-Disposition", "attachment")
-            self.end_headers()
-            if typ == "xls":
-                with tempfile.NamedTemporaryFile(suffix="xlsx") as tmp:
-                    print(tmp.name)
-                    r.write_excel(tmp.name)
-                    self.wfile.write(bytes(open(tmp.name).read(), 'utf-8'))
-            else:
-                r.write_csv(self.wfile)
-        elif self.path == '/api/servertree':
-            self.set_headers()
-            self.send_header("Content-type", self.extensions['json'])
-            self.end_headers()
-            r = self.query("dk>show tables;")
-            s = "["
-            i = 0
-            for c in r.get_column("name"):
-                # server: String, namespace: String, name: String, fullName: String, type: String, query: String,
-                # Partial info: String.Or(Undefined), db: String.Or(Undefined), columns: String.Or(Undefined)
-                s = s + (',' if i > 0 else '') + '{"server":"pythondb", "name":"' + c + '", "namespace":"", "fullName":"' + c + '", "type":"table", "query":"dk>SELECT * FROM ' + c + ' LIMIT 1000"}'
-                i = i + 1
-            s = s + "]"
-            self.wfile.write(bytes(s, 'utf-8'))
-        else:
-            p = p if os.path.exists(p) else 'html/index.html'
-            try:
-                enc = "utf8" if (p.endswith(".css") or p.endswith(".css")) else None
-                file_to_open = open(p, encoding=enc).read()
+            if self.path.startswith("/?]"):
+                r = self.query(self.path[3:])
+                self.wfile.write(bytes(r._repr_html_(), 'utf-8'))
+            elif (self.path.startswith("/file.csv?") or self.path.startswith("/t.csv?")
+                  or self.path.startswith("/file.xls?") or self.path.startswith("/t.xls?")):
+                p = self.path.index("?")
+                typ = self.path[p - 3:p]
+                r = self.query(self.path[p + 1:])
                 self.send_response(200)
-                self.set_content_type()
-            except Exception as e:
-                print(e)
-                file_to_open = "File not found"
-                self.send_response(404)
-            self.end_headers()
-            self.wfile.write(bytes(file_to_open, 'utf-8'))
+                self.send_header("Content-type", self.extensions[typ])
+                self.send_header("Content-Disposition", "attachment")
+                self.end_headers()
+                if typ == "xls":
+                    with tempfile.NamedTemporaryFile(suffix="xlsx") as tmp:
+                        print(tmp.name)
+                        r.write_excel(tmp.name)
+                        self.wfile.write(bytes(open(tmp.name).read(), 'utf-8'))
+                else:
+                    r.write_csv(self.wfile)
+            elif self.path == '/api/servertree':
+                self.set_headers()
+                self.send_header("Content-type", self.extensions['json'])
+                self.end_headers()
+                r = self.query("dk>show tables;")
+                s = "["
+                i = 0
+                for c in r.get_column("name"):
+                    # server: String, namespace: String, name: String, fullName: String, type: String, query: String,
+                    # Partial info: String.Or(Undefined), db: String.Or(Undefined), columns: String.Or(Undefined)
+                    s = s + (',' if i > 0 else '') + '{"server":"pythondb", "name":"' + c + '", "namespace":"", "fullName":"' + c + '", "type":"table", "query":"dk>SELECT * FROM ' + c + ' LIMIT 1000"}'
+                    i = i + 1
+                s = s + "]"
+                self.wfile.write(bytes(s, 'utf-8'))
+            else:
+                p = p if os.path.exists(p) else 'html/index.html'
+                try:
+                    enc = "utf8" if (p.endswith(".css") or p.endswith(".css")) else None
+                    file_to_open = open(p, encoding=enc).read()
+                    self.send_response(200)
+                    self.set_content_type()
+                except Exception as e:
+                    print(e)
+                    file_to_open = "File not found"
+                    self.send_response(404)
+                self.end_headers()
+                self.wfile.write(bytes(file_to_open, 'utf-8'))
+        except Exception as e:
+            print(e)
+            self.send_response(500)
 
