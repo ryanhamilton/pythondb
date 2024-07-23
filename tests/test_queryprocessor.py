@@ -1,6 +1,6 @@
 import pytest
 
-from src.hypermodern_python.console import QueryProcessor
+from src.mypythondb.console import QueryProcessor
 
 tq = ["pdx",
       "2",

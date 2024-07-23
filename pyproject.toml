@@ -1,13 +1,13 @@
 [tool.poetry]
-name = "hypermodern-python"
+name = "mypythondb"
 version = "0.2.2"
-description = "The hypermodern Python project"
-authors = ["Claudio Jolowicz <mail@claudiojolowicz.com>"]
+description = "The MyPythonDB project"
+authors = ["Ryan Hamilton"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/cjolowicz/hypermodern-python"
-repository = "https://github.com/cjolowicz/hypermodern-python"
-documentation = "https://hypermodern-python.readthedocs.io"
+homepage = "https://github.com/ryanhamilton/pythondb"
+repository = "https://github.com/ryanhamilton/pythondb"
+documentation = "https://github.com/ryanhamilton/pythondb"
 keywords = ["hypermodern"]
 
 [tool.poetry.dependencies]
@@ -33,14 +33,14 @@ pyinstaller = {version = "^6.8.0", python="^3.8,<3.13"}
 mysql-connector = "^2.2.9"
 
 [tool.poetry.scripts]
-qdb = "hypermodern_python.console:main"
+qdb = "mypythondb.console:main"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
 
 [tool.coverage.run]
 branch = true
-source = ["hypermodern_python"]
+source = ["mypythondb"]
 
 [tool.coverage.report]
 show_missing = true

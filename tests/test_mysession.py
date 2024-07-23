@@ -9,8 +9,8 @@
 # from mysql.connector import FieldType
 # from mysql.connector.fabric import MySQLFabricConnection
 #
-# from src.hypermodern_python.console import QueryProcessor
-# from src.hypermodern_python.mysession import start_sql
+# from src.mypythondb.console import QueryProcessor
+# from src.mypythondb.mysession import start_sql
 # from tests.test_queryprocessor import tq
 #
 #

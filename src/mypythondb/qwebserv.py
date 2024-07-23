@@ -8,7 +8,7 @@ import urllib.parse
 import typing
 import tempfile
 
-from src.hypermodern_python.queryprocessor import QueryProcessor
+from src.mypythondb.queryprocessor import QueryProcessor
 
 def start_web(query_processor: QueryProcessor, port: int):
     print("Starting Webserver port: ", port)
