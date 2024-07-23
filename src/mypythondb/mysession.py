@@ -46,7 +46,7 @@ from mysql_mimic.variables import (
 from mysql_mimic.results import AllowedResult
 
 from mysql_mimic import MysqlServer
-from src.hypermodern_python.queryprocessor import QueryProcessor
+from src.mypythondb.queryprocessor import QueryProcessor
 import polars as pl
 
 if TYPE_CHECKING:

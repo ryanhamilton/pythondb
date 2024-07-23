@@ -1,2 +1,2 @@
-from src.hypermodern_python.console import main
+from src.mypythondb.console import main
 main()

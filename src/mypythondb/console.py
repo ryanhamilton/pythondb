@@ -20,8 +20,8 @@ import _thread as thread
 
 from polars import DataFrame
 
-from src.hypermodern_python.queryprocessor import QueryProcessor
-from src.hypermodern_python.qwebserv import start_web
+from src.mypythondb.queryprocessor import QueryProcessor
+from src.mypythondb.qwebserv import start_web
 from .mysession import Session, start_sql
 from . import __version__
 
