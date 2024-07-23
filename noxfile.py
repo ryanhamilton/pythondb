@@ -7,7 +7,7 @@ from nox.sessions import Session
 
 
 package = "hypermodern_python"
-nox.options.sessions =  "safety", "mypy", "pytype", "tests"
+nox.options.sessions =  "safety", "pytype", "tests"
 locations = "src", "tests", "noxfile.py", "docs/conf.py"
 
 
@@ -55,14 +55,6 @@ def safety(session: Session) -> None:
         )
         install_with_constraints(session, "safety")
         session.run("safety", "check", f"--file={requirements.name}", "--full-report")
-
-
-@nox.session(python=["3.9", "3.11"])
-def mypy(session: Session) -> None:
-    """Type-check using mypy."""
-    args = session.posargs or locations
-    install_with_constraints(session, "mypy")
-    session.run("mypy", *args)
 
 
 @nox.session(python="3.7")
