@@ -45,8 +45,6 @@ class QueryProcessor:
         self.query_lang = "dk"
         self.duckdb = duckdb.connect(":default:")
         data = {"a": [1, 2], "b": [33, 41]}
-        plx = pl.DataFrame(data)
-        pdx = pd.DataFrame(data)
         self.mylocals = {"qdb":self}
         self.ctx = pl.SQLContext(register_globals=True, eager=True, frames={})
 

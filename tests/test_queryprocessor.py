@@ -19,7 +19,12 @@ duckdb.sql("SELECT 42 AS i")""", ">>>None"]
 
 
 def chk(a: str, exp: str) -> None:
-    assert QueryProcessor().query(a).__str__() == exp
+    qp = QueryProcessor()
+    qp.setlang("py")
+    qp.query('pdx = pd.DataFrame({"a": [1, 2], "b": [33, 41]})')
+    qp.query('plx = pl.DataFrame({"a": [1, 2], "b": [33, 41]})')
+
+    assert qp.query(a).__str__() == exp
 
 
 def test_pdx() -> None:

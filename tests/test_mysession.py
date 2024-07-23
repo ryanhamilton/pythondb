@@ -17,6 +17,7 @@ from tests.test_queryprocessor import tq
 @pytest.fixture
 def runner() -> None:
     query_processor = QueryProcessor()
+    query_processor.setlang("py")
     thread.start_new_thread(start_sql, (query_processor, 3306))
     time.sleep(5)
 
