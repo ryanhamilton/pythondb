@@ -22,7 +22,7 @@ import kola
 import duckdb
 from polars import DataFrame
 
-def exec_with_return(code: str, globals: dict, locals: dict):
+def exec_with_return(code: str, globals: dict, locals: dict, verbose: bool):
     a = ast.parse(code)
     last_expression = None
     if a.body:
@@ -32,24 +32,37 @@ def exec_with_return(code: str, globals: dict, locals: dict):
             last_expression = ast.unparse(a_last.targets[0])
         elif isinstance(a_last, (ast.AnnAssign, ast.AugAssign)):
             last_expression = ast.unparse(a_last.target)
-    print("locals before: ", locals.keys())
+    if verbose:
+        print("locals before: ", locals.keys())
     exec(ast.unparse(a), globals, locals)
     if last_expression:
         r = eval(last_expression, globals, locals)
-        print("locals after: ", locals.keys())
+        if verbose:
+            print("locals after: ", locals.keys())
         return r
 
 
 class QueryProcessor:
-    def __init__(self):
+    def __init__(self, verbose: bool = False):
         self.query_lang = "dk"
         self.duckdb = duckdb.connect(":default:")
+        self.verbose = verbose
         data = {"a": [1, 2], "b": [33, 41]}
         self.mylocals = {"qdb":self}
         self.ctx = pl.SQLContext(register_globals=True, eager=True, frames={})
 
     def setlang(self, lg:str):
-        self.query_lang = lg
+        l = lg.upper()
+        match l:
+            case "PYTHON": l = "py"
+            case "PY": l = "py"
+            case "DUCKDB": l = "dk"
+            case "DK": l = "dk"
+            case "POLARS": l = "pl"
+            case "PL": l = "pl"
+            case _:
+                raise Exception("setlang invalid. Must be PY/PL/DK")
+        self.query_lang = l
 
     def getconfig(self):
         return {"lang":self.query_lang}
@@ -58,8 +71,6 @@ class QueryProcessor:
         return '>>>' if self.query_lang == 'py' else 'q)' if self.query_lang == 'q' else (self.query_lang + ">")
 
     def queryraw(self, sql):
-        print(f"SQL string: {sql}")
-
         s = sql.strip()
         if len(s) == 0:
             return None
@@ -83,7 +94,7 @@ class QueryProcessor:
         elif s.startswith(">>>") or s.startswith("py>"):
             while s.startswith(">>>") or s.startswith("py>"):
                 s = s[3:]
-            r = exec_with_return(s, globals(), self.mylocals)
+            r = exec_with_return(s, globals(), self.mylocals, self.verbose)
             print(r)
             # Register any newly created vars
             polars = {}

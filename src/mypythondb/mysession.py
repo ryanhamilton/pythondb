@@ -647,7 +647,6 @@ class MySession(Session):
         return r
 
 def start_sql(queryProcessor: QueryProcessor, port: int):
-    print("Starting MySQL Server port: ", port)
     handler = partial(MySession, queryProcessor)
     server = MysqlServer(session_factory=handler, port=port)
     asyncio.run(server.serve_forever())

@@ -1,14 +1,45 @@
-# QDB
+# MyPythonDB
 
 Python is at the heart of most data analysis but to share analysis's most users have been uploading data to SQL databases, until now.
-QDB turns your python instance into an SQL database. Existing tools can query data directly at faster than database speeds.
+MyPythonDB turns your python instance into an SQL database. Existing tools can query data directly at faster than database speeds.
 
-- QDB provides a MySQL interface that allows every BI tool to just work.
+- PythonDB provides a MySQL interface that allows every BI tool to just work.
 - With DuckDB and Polars-SQL you can directly query in-memory dataframes, S3 or on-disk parquet files using SQL.
 - Via the simple SQL editor web interface, you can share links to results with colleagues.
 
 Modern tools and libraries are arriving and providing capabilities and performance only previously available accessible by paying for 
 huge enterprise licenses $$$. Given these changes, We believe data analysts will increasingly be performed using these tools in future.
+
+## Uses
+
+1. Import package to expose your python instance as a MySQL Database.
+2. pythondb.exe mydb.duckdb - Load a duckdb database and make it remotely accessible.
+3. pythondb --language duckdb - A new in-memory duckdb instance
+4. pythondb --language polars - A new in-memory duckdb instance
+
+### Python as MySQL
+
+```
+import mypythondb
+
+mypythondb.start(port=3145, webport=9090, language='POLARS')
+```
+
+## Command Line Options
+
+```
+Options:
+  -l, --language LANG    Language to interpret code as.  [default: PYTHON]
+  -c, --command COMMAND  Run COMMAND
+  -P, --port SQLPORT     Port for MySQL compatible server to listen on
+  -w, --webport WEBPORT  Port for webserver to listen on
+  -q, --quiet            Quiet, don't show banner
+  -v, --verbose          Display debugging information
+  --version              Show the version and exit.
+  --help                 Show this message and exit.
+```
+
+# Development Info
 
 ### Facts
 
@@ -27,14 +58,6 @@ poetry run qdb
 poetry run pytest
 poetry run pyinstaller --onefile  launcher.py
 ```
-
-# TODO
-
-1. Pypi upload
-2. Web - to_json - tests for every data combo.
-3. MySQL - tests for every data combo query.
-4. Test windows .exe
-
 ## Optional TODO
 
 - Ability to set duckdb conn to one of users choosing.

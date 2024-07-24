@@ -10,11 +10,12 @@ import tempfile
 
 from src.mypythondb.queryprocessor import QueryProcessor
 
+
 def start_web(query_processor: QueryProcessor, port: int):
-    print("Starting Webserver port: ", port)
     handler = partial(QWebServ, query_processor)
     httpd = HTTPServer(('localhost', port), handler)
     httpd.serve_forever()
+
 
 def to_dashtype(pltype: pl.DataType) -> str:
     if pltype.is_numeric():
