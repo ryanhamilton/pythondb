@@ -63,8 +63,8 @@ def main(filepaths: tuple[str], language: str, port: int, webport: int, command:
     repl.interact(banner="", exitmsg="")
 
 
-def start(filepaths: tuple[str], language: str|None = None, port: int = 3306, webport: int = 8080, command: str = "", quiet: bool = False, verbose: bool = False) -> QueryProcessor:
-    db:duckdb.DuckDBPyConnection|None = None
+def start(filepaths: tuple[str], language: str = "", port: int = 3306, webport: int = 8080, command: str = "", quiet: bool = False, verbose: bool = False) -> QueryProcessor:
+    db = None
     lang = language
     source_files = []
     print(filepaths)
@@ -76,7 +76,7 @@ def start(filepaths: tuple[str], language: str|None = None, port: int = 3306, we
         else:
             source_files.append(p)
     query_processor = QueryProcessor(verbose, db=db)
-    if lang is not None:
+    if lang != "":
         query_processor.setlang(lang)
     thread.start_new_thread(start_web, (query_processor, webport))
     thread.start_new_thread(start_sql, (query_processor, port))
