@@ -57,14 +57,13 @@ class QueryProcessor:
 
     def setlang(self, lg:str):
         l = lg.upper()
-        match l:
-            case "PYTHON": l = "py"
-            case "PY": l = "py"
-            case "DUCKDB": l = "dk"
-            case "DK": l = "dk"
-            case "POLARS": l = "pl"
-            case "PL": l = "pl"
-            case _:
+        if l == "PYTHON":   l = "py"
+        elif l == "PY":     l = "py"
+        elif l == "DUCKDB": l = "dk"
+        elif l == "DK":     l = "dk"
+        elif l == "POLARS": l = "pl"
+        elif l == "PL": l = "pl"
+        else:
                 raise Exception("setlang invalid. Must be PY/PL/DK")
         self.query_lang = l
 
