@@ -63,7 +63,7 @@ def main(filepaths: tuple[str], language: str, port: int, webport: int, command:
     repl.interact(banner="", exitmsg="")
 
 
-def start(filepaths: tuple[str], language: str = "", port: int = 3306, webport: int = 8080, command: str = "", quiet: bool = False, verbose: bool = False) -> QueryProcessor:
+def start(filepaths: tuple[str] = (), language: str = "", port: int = 3306, webport: int = 8080, command: str = "", quiet: bool = False, verbose: bool = False) -> QueryProcessor:
     db = None
     lang = language
     source_files = []
