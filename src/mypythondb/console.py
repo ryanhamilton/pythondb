@@ -45,7 +45,7 @@ BANNER = """
 @click.option("--verbose", "-v", help="Display debugging information", default=False, is_flag=True)
 @click.argument('filepaths', nargs=-1)
 @click.version_option(version=__version__)
-def main(filepaths: tuple[str], language: str|None, port: int, webport: int, command: str, quiet: bool, verbose: bool) -> None:
+def main(filepaths: tuple[str], language: str, port: int, webport: int, command: str, quiet: bool, verbose: bool) -> None:
 
     lang = language
     parameter_source = click.get_current_context().get_parameter_source('language')
