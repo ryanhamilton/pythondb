@@ -22,7 +22,7 @@ pyarrow = "16.1.0"
 pandas = "2.2.2"
 XlsxWriter = "3.2.0"
 mysql_mimic = "2.5.5"
-deltalake = "^0.18.1"
+deltalake = "^0.18.2"
 kola = "^0.9.0"
 
 [tool.poetry.dev-dependencies]
@@ -33,7 +33,7 @@ pyinstaller = {version = "^6.8.0", python="^3.8,<3.13"}
 mysql-connector = "^2.2.9"
 
 [tool.poetry.scripts]
-qdb = "mypythondb.console:main"
+pythondb = "mypythondb.console:main"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]

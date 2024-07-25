@@ -15,7 +15,7 @@ huge enterprise licenses $$$. Given these changes, We believe data analysts will
 1. Import package to expose your python instance as a MySQL Database.
 2. pythondb.exe mydb.duckdb - Load a duckdb database and make it remotely accessible.
 3. pythondb --language duckdb - A new in-memory duckdb instance
-4. pythondb --language polars - A new in-memory duckdb instance
+4. pythondb code.py --language polars - A polars instance
 
 ### Python as MySQL
 
@@ -54,7 +54,7 @@ Options:
 ```
 poetry install --sync
 poetry lock
-poetry run qdb
+poetry run pythondb
 poetry run pytest
 poetry run pyinstaller --onefile  launcher.py
 ```

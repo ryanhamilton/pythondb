@@ -9,6 +9,7 @@ import asyncio
 from functools import partial
 
 from mysql_mimic import MysqlServer
+from pathlib import Path
 import polars as pl
 import pandas as pd
 
@@ -43,12 +44,15 @@ def exec_with_return(code: str, globals: dict, locals: dict, verbose: bool):
 
 
 class QueryProcessor:
-    def __init__(self, verbose: bool = False):
+    def __init__(self, verbose: bool = False, db: duckdb.DuckDBPyConnection = None):
         self.query_lang = "dk"
-        self.duckdb = duckdb.connect(":default:")
+        if db is None:
+            self.duckdb = duckdb.connect(":default:")
+        else:
+            self.duckdb = db
+
         self.verbose = verbose
-        data = {"a": [1, 2], "b": [33, 41]}
-        self.mylocals = {"qdb":self}
+        self.mylocals = {"pythondb":self, "pdb":self}
         self.ctx = pl.SQLContext(register_globals=True, eager=True, frames={})
 
     def setlang(self, lg:str):
@@ -64,6 +68,9 @@ class QueryProcessor:
                 raise Exception("setlang invalid. Must be PY/PL/DK")
         self.query_lang = l
 
+    def getlang(self):
+        return self.query_lang
+
     def getconfig(self):
         return {"lang":self.query_lang}
 
@@ -74,7 +81,7 @@ class QueryProcessor:
         s = sql.strip()
         if len(s) == 0:
             return None
-        elif s.startswith("qdb."): # Always run qdb as python. Handy to make commands standard?
+        elif s.startswith("pythondb.") or s.startswith("pdb."):  # Always run pythondb as python. Handy to make commands standard?
             s = ">>>" + s
         elif len(s) < 3 or (s[2] != '>' and not s.startswith("q)")): # Add default lang as prefix if none specified
             s = ((self.query_lang + '>') if self.query_lang != 'q' else 'q)') + s
@@ -159,3 +166,16 @@ class QueryProcessor:
             return pl.DataFrame({"None": []})
         print(obj)
         return pl.DataFrame({"unrecognised": type(obj)})
+
+    def load_files(self, source_files:list[str]) -> None:
+        original_lang = self.getlang()
+        for srcp in source_files:
+            if self.verbose:
+                print("Loading file: " + srcp)
+            txt = Path(srcp).read_text()
+            p = srcp.lower()
+            if p.endswith(".sql") and original_lang == 'py':
+                self.setlang("dk")
+            elif p.endswith(".py"):
+                self.setlang("py")
+            self.queryraw(txt)
