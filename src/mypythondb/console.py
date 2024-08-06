@@ -55,7 +55,7 @@ def main(filepaths: tuple[str], language: str, port: int, webport: int, command:
     """ PythonDB interactive SQL/python querying."""
     if not quiet:
         click.secho(BANNER, fg="blue")
-        click.echo("PythonDB " + __version__ + " https://github.com/ryanhamilton/pythondb")
+        click.echo("PythonDB 0.1 https://github.com/ryanhamilton/pythondb")
         click.echo("web: http://localhost:" + str(webport) + "    MySQL port: " + str(port))
     # https://bernsteinbear.com/blog/simple-python-repl/
     query_processor = start(filepaths, lang, port, webport, command, quiet, verbose)
