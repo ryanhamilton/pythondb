@@ -155,20 +155,19 @@ class QWebServ(BaseHTTPRequestHandler):
                 if os.path.exists(p):
                     actual_path = p
                 elif getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-                    actual_path = sys._MEIPASS + p
+                    actual_path = os.path.join(sys._MEIPASS, p)
                     if not os.path.exists(actual_path):
                         actual_path = 'html/index.html'
                 else:
                     actual_path = 'html/index.html'
 
                 is_binary = p.endswith(".ico") or p.endswith(".png")
-                print('is_binary = ' + str(is_binary))
                 try:
-                    enc = "utf8" if p.endswith(".css") else None
                     if is_binary:
-                        file_to_open = open(p, 'rb').read()
+                        file_to_open = open(actual_path, 'rb').read()
                     else:
-                        file_to_open = open(p, encoding=enc).read()
+                        enc = "utf8" if p.endswith(".css") else None
+                        file_to_open = open(actual_path, encoding=enc).read()
 
                     self.set_headers()
                     self.send_header("Content-type", self.set_content_type())
