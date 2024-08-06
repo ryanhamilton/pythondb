@@ -7,6 +7,7 @@ import polars as pl
 import urllib.parse
 import typing
 import tempfile
+import sys
 
 from src.mypythondb.queryprocessor import QueryProcessor
 
@@ -47,13 +48,15 @@ class QWebServ(BaseHTTPRequestHandler):
         "xls": "application/vnd.ms-excel",
         "csv": "text/comma-separated-values",
         "json": "application/json",
+        "ico": "image/x-icon",
+        "png": "image/png"
     }
 
     def set_content_type(self):
         extension = self.path.split(".")[-1]
         if extension in self.extensions:
             return self.extensions[extension]
-        return self.extensions["plain"]
+        return self.extensions["html"]
 
     def query(self, qr: str) -> pl.DataFrame:
         qry = urllib.parse.unquote(qr)
@@ -110,7 +113,7 @@ class QWebServ(BaseHTTPRequestHandler):
         try:
             p = 'html' + self.path
             print(p)
-            if self.path == '/':
+            if self.path == '/' or self.path.startswith("/sqleditor"):
                 p = 'html/index.html'
 
             if self.path.startswith("/?]"):
@@ -147,18 +150,40 @@ class QWebServ(BaseHTTPRequestHandler):
                 s = s + "]"
                 self.wfile.write(bytes(s, 'utf-8'))
             else:
-                p = p if os.path.exists(p) else 'html/index.html'
+                # Prefer {currrentDir}/  >  {bundledDir}/ > index
+                actual_path = p
+                if os.path.exists(p):
+                    actual_path = p
+                elif getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+                    actual_path = sys._MEIPASS + p
+                    if not os.path.exists(actual_path):
+                        actual_path = 'html/index.html'
+                else:
+                    actual_path = 'html/index.html'
+
+                is_binary = p.endswith(".ico") or p.endswith(".png")
+                print('is_binary = ' + str(is_binary))
                 try:
-                    enc = "utf8" if (p.endswith(".css") or p.endswith(".css")) else None
-                    file_to_open = open(p, encoding=enc).read()
+                    enc = "utf8" if p.endswith(".css") else None
+                    if is_binary:
+                        file_to_open = open(p, 'rb').read()
+                    else:
+                        file_to_open = open(p, encoding=enc).read()
+
+                    self.set_headers()
+                    self.send_header("Content-type", self.set_content_type())
+                    if is_binary:
+                        self.send_header('Content-length', str(len(file_to_open)))
                     self.send_response(200)
-                    self.set_content_type()
                 except Exception as e:
                     print(e)
                     file_to_open = "File not found"
                     self.send_response(404)
                 self.end_headers()
-                self.wfile.write(bytes(file_to_open, 'utf-8'))
+                if is_binary:
+                    self.wfile.write(file_to_open)
+                else:
+                    self.wfile.write(bytes(file_to_open, 'utf-8'))
         except Exception as e:
             print(e)
             self.send_response(500)

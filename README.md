@@ -1,4 +1,4 @@
-# MyPythonDB
+# MyPythonDB - Python as a Database
 
 Python is at the heart of most data analysis but to share analysis's most users have been uploading data to SQL databases, until now.
 MyPythonDB turns your python instance into an SQL database. Existing tools can query data directly at faster than database speeds.
@@ -56,7 +56,7 @@ poetry install --sync
 poetry lock
 poetry run pythondb
 poetry run pytest
-poetry run pyinstaller --onefile  launcher.py
+poetry run pyinstaller --onefile launcher.py --icon pythondb-512.ico --name pythondb --add-data html;html
 ```
 ## Optional TODO
 

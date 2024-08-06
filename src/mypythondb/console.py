@@ -76,7 +76,7 @@ def start(filepaths: tuple[str] = (), language: str = "", port: int = 3306, webp
         else:
             source_files.append(p)
     query_processor = QueryProcessor(verbose, db=db)
-    if lang != "":
+    if lang is not None and lang != "":
         query_processor.setlang(lang)
     thread.start_new_thread(start_web, (query_processor, webport))
     thread.start_new_thread(start_sql, (query_processor, port))
