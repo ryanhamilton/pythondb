@@ -1,7 +1,5 @@
 # MyPythonDB - Python as a Database
 
-![PythonDB](html/img/logo-white.png)
-
 ![PythonDB](html/img/pythondb-overview.png)
 
 Python is at the heart of most data analysis but to share analysis's most users have been uploading data to SQL databases, until now.
