@@ -58,5 +58,5 @@ poetry install --sync
 poetry lock
 poetry run pythondb
 poetry run pytest
-poetry run pyinstaller --onefile launcher.py --icon pythondb-512.ico --name pythondb --add-data html;html
+poetry run pyinstaller --onefile launcher.py --icon html\favicon.ico --name pythondb --add-data html;html
 ```
