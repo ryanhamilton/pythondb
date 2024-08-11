@@ -1,5 +1,9 @@
 # MyPythonDB - Python as a Database
 
+![PythonDB](html/img/logo-white.png)
+
+![PythonDB](html/img/pythondb-overview.png)
+
 Python is at the heart of most data analysis but to share analysis's most users have been uploading data to SQL databases, until now.
 MyPythonDB turns your python instance into an SQL database. Existing tools can query data directly at faster than database speeds.
 
@@ -14,8 +18,8 @@ huge enterprise licenses $$$. Given these changes, We believe data analysts will
 
 1. Import package to expose your python instance as a MySQL Database.
 2. pythondb.exe mydb.duckdb - Load a duckdb database and make it remotely accessible.
-3. pythondb --language duckdb - A new in-memory duckdb instance
-4. pythondb code.py --language polars - A polars instance
+3. pythondb - A new in-memory duckdb instance
+4. pythondb --language polars --language polars - A polars instance
 
 ### Python as MySQL
 
@@ -50,7 +54,7 @@ Options:
     - Apache **Parquet** on disk
 
 
-# Commands
+# Dev Commands
 ```
 poetry install --sync
 poetry lock
@@ -58,32 +62,3 @@ poetry run pythondb
 poetry run pytest
 poetry run pyinstaller --onefile launcher.py --icon pythondb-512.ico --name pythondb --add-data html;html
 ```
-## Optional TODO
-
-- Ability to set duckdb conn to one of users choosing.
-- Ability to set polars context to one of users choosing.
-
-- QWEB
-	- autocomplete for duckdb / polars / python?
-	- Sharing link to show correct chart type fix.
-	- Server Tree Working
-- MySQL
-	- Test with tableau / dbeaver / ?
-	- Server Tree Working
-	- Security - Allow setting authentication function
-- Tutorials/Website
-	- Using QDB to enable DuckDB IPC
-	- Using QDB to query python direct from tableau / every popular combo......
-	- Using QDB to enable polars SQL IPC
-- Deploy
-	- Provide mac built package
-	- Provide linux built package
-	- Get into linux package managers
-	- Get into mac package managers 
-- KDB
-	- Subscribe to streaming data
-	- KDB Server ability to allow users to send data in from a kdb+ process?
-	- Q Language?
-- Misc
-    - K Language?
-    - Other languages?
